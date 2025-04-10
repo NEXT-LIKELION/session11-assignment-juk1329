@@ -23,21 +23,32 @@ function App() {
     const [priority, setPriority] = useState("medium");
     const [inputValue, setInputValue] = useState("");
 
+    const [openSnackbar, setOpenSnackbar] = useState(false);
+    const [latestTodo, setLatestTodo] = useState("");
+
     const handleInputChange = (e) => {
         setInputValue(e.target.value);
     };
+
     const handlePriorityChange = (e) => {
         setPriority(e.target.value);
     };
+
     const handleAddTodo = () => {
         if (inputValue.trim()) {
-            setTodos([
-                ...todos,
-                { task: inputValue, priority: priority, isDone: false },
-            ]);
+            const newTodo = {
+                task: inputValue,
+                priority: priority,
+                isDone: false,
+            };
+            setTodos([...todos, newTodo]);
             setInputValue("");
+
+            setLatestTodo(inputValue);
+            setOpenSnackbar(true);
         }
     };
+
     const handleToggleTodo = (index) => {
         setTodos(
             todos.map((todo, i) =>
@@ -45,6 +56,15 @@ function App() {
             )
         );
     };
+
+    useEffect(() => {
+        if (openSnackbar) {
+            const timer = setTimeout(() => {
+                setOpenSnackbar(false);
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [openSnackbar]);
 
     return (
         <ThemeProvider theme={darkTheme}>
@@ -89,6 +109,17 @@ function App() {
                         todos={todos}
                         handleToggleTodo={handleToggleTodo}
                     />
+                    <Snackbar
+                        open={openSnackbar}
+                        anchorOrigin={{
+                            vertical: "bottom",
+                            horizontal: "center",
+                        }}
+                    >
+                        <Alert severity="success" sx={{ width: "100%" }}>
+                            "{latestTodo}" 할 일이 추가되었습니다.
+                        </Alert>
+                    </Snackbar>
                 </Container>
             </Box>
         </ThemeProvider>
